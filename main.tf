@@ -13,19 +13,19 @@ provider "aws" {
 //Modify the bucket and dynamoDB table that are used by Terraform
 terraform {
   backend "s3" {
-    bucket         = "DOC-EXAMPLE-BUCKET"
+    bucket         = "terraform-jona"
     key            = "private-windows-eks.tfstate"
-    region         = "eu-central-1"
-    dynamodb_table = "private-windows-eks-tf-lock"
+    region         = "eu-west-3"
+    dynamodb_table = "terraform-jona"
   }
 }
 
 data terraform_remote_state "network" {
     backend = "s3"
     config = {
-        bucket = "DOC-EXAMPLE-BUCKET"
-        key = "network.tfstate"
-        region = "eu-central-1"
+        bucket         = "terraform-jona"
+        key            = "network.tfstate"
+        region         = "eu-west-3"
      }
 }
 
