@@ -20,7 +20,9 @@ global:
     manageSystemACLs: true
     createReplicationToken: true
   gossipEncryption:
-    autoGenerate: true
+    autoGenerate: false
+    secretName: consul-gossip-encryption-key
+    secretKey: key
   enableConsulNamespaces: true
   metrics:
     enabled: true
