@@ -1,0 +1,150 @@
+global:
+  enabled: true
+  datacenter: "dc1"
+  name: consul
+  domain: consul
+  image: hashicorp/consul-enterprise:1.12.0-ent
+  enterpriseLicense:
+    secretName: consul-ent-license
+    secretKey: consul.hclic
+  adminPartitions:
+    enabled: false
+  tls:
+    enabled: true
+    httpsOnly: false
+    enableAutoEncrypt: true
+  federation:
+    enabled: false
+    createFederationSecret: false
+  acls:
+    manageSystemACLs: true
+    createReplicationToken: true
+  gossipEncryption:
+    autoGenerate: true
+  enableConsulNamespaces: true
+  metrics:
+    enabled: true
+    enableAgentMetrics: true
+    enableGatewayMetrics: true
+server:
+  replicas: 3
+  exposeGossipAndRPCPorts: true
+  # extraConfig: |
+  #   {
+  #     "primary_datacenter": "gcpew4-playground-1",
+  #     "primary_gateways": ["172.26.31.140:8310"]
+  #   }
+  nodeSelector: |
+    kubernetes.io/os: linux
+  # affinity: |
+  #   nodeAffinity:
+  #     requiredDuringSchedulingIgnoredDuringExecution:
+  #       nodeSelectorTerms:
+  #       - matchExpressions:
+  #         - key: kubernetes.io/os
+  #           operator: In
+  #           values:
+  #           - linux
+client:
+  extraConfig: |
+    {
+      "audit": {
+          "enabled": false,
+          "sink": {
+              "My sink": {
+                  "type": "file",
+                  "format": "json",
+                  "path": "/consul/data/audit.json",
+                  "delivery_guarantee": "best-effort",
+                  "rotate_duration": "24h",
+                  "rotate_max_files": 1,
+                  "rotate_bytes": 25165824
+              }
+          }
+      }
+    }
+  nodeSelector: |
+    kubernetes.io/os: linux
+  # affinity: |
+  #   nodeAffinity:
+  #     requiredDuringSchedulingIgnoredDuringExecution:
+  #       nodeSelectorTerms:
+  #       - matchExpressions:
+  #         - key: kubernetes.io/os
+  #           operator: In
+  #           values:
+  #           - linux
+  auditLogging:
+    enabled: true
+  exposeGossipAndRPCPorts: true
+connectInject:
+  replicas: 1
+  enabled: false
+  transparentProxy:
+    defaultEnabled: true
+  envoyExtraArgs: "--log-level debug"
+  consulNamespaces:
+    mirroringK8S: true
+    mirroringK8SPrefix: gke-
+  metrics:
+    defaultEnabled: true
+    defaultEnableMerging: true
+    defaultPrometheusScrapePort: 20200
+    defaultPrometheusScrapePath: "/metrics"
+  nodeSelector: |
+    kubernetes.io/os: linux
+prometheus:
+  enabled: false
+controller:
+  enabled: true
+  nodeSelector: |
+    kubernetes.io/os: linux
+meshGateway:
+  enabled: false
+  replicas: 3
+  nodeSelector: |
+    kubernetes.io/os: linux
+ingressGateways:
+  replicas: 3
+  enabled: false
+  gateways:
+    - name: ingress-gateway
+      service:
+        type: LoadBalancer
+  nodeSelector: |
+    kubernetes.io/os: linux
+terminatingGateways:
+  replicas: 1
+  enabled: false
+  gateways:
+  - name: terminating-gateway
+    # extraVolumes:
+    # - type: secret
+    #   name: webserver-tls
+    #   items:
+    #   - key: caFile
+    #     path: consulCa.pem   
+    #   - key: caKey
+    #     path: consul.key
+    #   - key: certFile
+    #     path: consul.crt
+  nodeSelector: |
+    kubernetes.io/os: linux
+ui:
+  enabled: true
+  service:
+    type: LoadBalancer
+syncCatalog:
+  enabled: true
+  k8sDenyNamespaces: ["kube-system", "kube-public", "consul"]
+  nodeSelector: |
+    kubernetes.io/os: linux
+  # affinity: |
+  #   nodeAffinity:
+  #     requiredDuringSchedulingIgnoredDuringExecution:
+  #       nodeSelectorTerms:
+  #       - matchExpressions:
+  #         - key: kubernetes.io/os
+  #           operator: In
+  #           values:
+  #           - linux
